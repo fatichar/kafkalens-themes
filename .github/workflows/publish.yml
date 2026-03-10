@@ -26,26 +26,13 @@ jobs:
         fi
         echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
       
-    - name: Update plugin index
-      run: |
-        # Clone the plugin index repository
-        git clone https://github.com/fatichar/kafkalens-plugin-index.git temp-index
-        cd temp-index
-        
-        # Update the plugin entry
-        sed -i 's/"version": "[^"]*"/"version": "${{ steps.version.outputs.VERSION }}"/g' plugins.json
-        sed -i 's/"updated": "[^"]*"/"updated": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"/g' plugins.json
-        
-        # Commit and push changes
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add plugins.json
-        git commit -m "Update nature-themes to ${{ steps.version.outputs.VERSION }}"
-        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/fatichar/kafkalens-plugin-index.git master
-        
     - name: Create release zip
       run: |
         zip -r nature-themes-${{ steps.version.outputs.VERSION }}.zip . -x ".git/*" "README.md" "install.sh" "install.bat"
+        echo "📦 Created ZIP: nature-themes-${{ steps.version.outputs.VERSION }}.zip"
+        echo "🔗 To update plugin index, edit kafkalens-plugin-index/plugins.json"
+        echo "📝 Set version: ${{ steps.version.outputs.VERSION }}"
+        echo "⏰ Set updated: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
         
     - name: Upload release asset
       uses: actions/upload-release-asset@v1
