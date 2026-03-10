@@ -1,0 +1,50 @@
+name: Publish to Plugin Index
+
+on:
+  push:
+    tags:
+      - 'v*'
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Get version
+      id: version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+      
+    - name: Update plugin index
+      run: |
+        # Clone the plugin index repository
+        git clone https://github.com/fatichar/kafkalens-plugin-index.git temp-index
+        cd temp-index
+        
+        # Update the plugin entry
+        sed -i 's/"version": "[^"]*"/"version": "${{ steps.version.outputs.VERSION }}"/g' plugins.json
+        sed -i 's/"updated": "[^"]*"/"updated": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"/g' plugins.json
+        
+        # Commit and push changes
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add plugins.json
+        git commit -m "Update kafkalens-themes to v${{ steps.version.outputs.VERSION }}"
+        git push
+        
+    - name: Create release zip
+      run: |
+        zip -r kafkalens-themes-${{ steps.version.outputs.VERSION }}.zip . -x ".git/*" "README.md" "install.sh" "install.bat"
+        
+    - name: Upload release asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./kafkalens-themes-${{ steps.version.outputs.VERSION }}.zip
+        asset_name: kafkalens-themes-${{ steps.version.outputs.VERSION }}.zip
+        asset_content_type: application/zip

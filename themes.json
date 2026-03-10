@@ -1,0 +1,42 @@
+{
+  "packageName": "Nature Themes Collection",
+  "author": "KafkaLens Community",
+  "description": "Beautiful nature-inspired themes for KafkaLens",
+  "themes": [
+    {
+      "id": "bright",
+      "displayName": "Bright",
+      "description": "Clean bright theme with orange accents",
+      "baseVariant": "Light",
+      "resourceFile": "Themes/Bright.axaml"
+    },
+    {
+      "id": "forest",
+      "displayName": "Forest",
+      "description": "Natural forest green theme",
+      "baseVariant": "Light",
+      "resourceFile": "Themes/Forest.axaml"
+    },
+    {
+      "id": "gray",
+      "displayName": "Gray",
+      "description": "Neutral gray theme for reduced eye strain",
+      "baseVariant": "Dark",
+      "resourceFile": "Themes/Gray.axaml"
+    },
+    {
+      "id": "ocean",
+      "displayName": "Ocean",
+      "description": "Calming ocean blue theme",
+      "baseVariant": "Light",
+      "resourceFile": "Themes/Ocean.axaml"
+    },
+    {
+      "id": "purple",
+      "displayName": "Purple",
+      "description": "Elegant purple theme",
+      "baseVariant": "Light",
+      "resourceFile": "Themes/Purple.axaml"
+    }
+  ]
+}
