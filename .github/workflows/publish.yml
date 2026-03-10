@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - 'v*'
+    branches:
+      - master
   release:
     types: [published]
 
@@ -16,7 +18,13 @@ jobs:
       
     - name: Get version
       id: version
-      run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+      run: |
+        if [[ $GITHUB_REF == refs/tags/* ]]; then
+          VERSION=${GITHUB_REF#refs/tags/v}
+        else
+          VERSION="dev-$(git rev-parse --short HEAD)"
+        fi
+        echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
       
     - name: Update plugin index
       run: |
@@ -32,12 +40,12 @@ jobs:
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git add plugins.json
-        git commit -m "Update kafkalens-themes to v${{ steps.version.outputs.VERSION }}"
+        git commit -m "Update nature-themes to ${{ steps.version.outputs.VERSION }}"
         git push
         
     - name: Create release zip
       run: |
-        zip -r kafkalens-themes-${{ steps.version.outputs.VERSION }}.zip . -x ".git/*" "README.md" "install.sh" "install.bat"
+        zip -r nature-themes-${{ steps.version.outputs.VERSION }}.zip . -x ".git/*" "README.md" "install.sh" "install.bat"
         
     - name: Upload release asset
       uses: actions/upload-release-asset@v1
@@ -45,6 +53,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ./kafkalens-themes-${{ steps.version.outputs.VERSION }}.zip
-        asset_name: kafkalens-themes-${{ steps.version.outputs.VERSION }}.zip
+        asset_path: ./nature-themes-${{ steps.version.outputs.VERSION }}.zip
+        asset_name: nature-themes-${{ steps.version.outputs.VERSION }}.zip
         asset_content_type: application/zip
