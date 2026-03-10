@@ -26,19 +26,38 @@ jobs:
         fi
         echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
       
-    - name: Create release zip
+    - name: Create release zips
       run: |
+        # Create versioned zip for artifacts
         zip -r nature-themes-${{ steps.version.outputs.VERSION }}.zip . -x ".git/*" "README.md" "install.sh" "install.bat"
-        echo "📦 Created ZIP: nature-themes-${{ steps.version.outputs.VERSION }}.zip"
-        echo "🔗 To update plugin index, edit kafkalens-plugin-index/plugins.json"
-        echo "📝 Set version: ${{ steps.version.outputs.VERSION }}"
-        echo "⏰ Set updated: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-        echo ""
-        echo "📋 For releases, manually download ZIP from workflow artifacts and upload to release"
         
-    - name: Upload ZIP as artifact
+        # Create consistent latest zip for releases
+        zip -r nature-themes-latest.zip . -x ".git/*" "README.md" "install.sh" "install.bat"
+        
+        echo "📦 Created ZIPs:"
+        echo "   - nature-themes-${{ steps.version.outputs.VERSION }}.zip (versioned)"
+        echo "   - nature-themes-latest.zip (consistent)"
+        
+    - name: Upload versioned ZIP as artifact
       uses: actions/upload-artifact@v4
       with:
         name: nature-themes-${{ steps.version.outputs.VERSION }}
         path: ./nature-themes-${{ steps.version.outputs.VERSION }}.zip
         retention-days: 30
+        
+    - name: Upload latest ZIP as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: nature-themes-latest
+        path: ./nature-themes-latest.zip
+        retention-days: 30
+
+    - name: Upload to Release
+      if: github.event_name == 'release'
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          nature-themes-${{ steps.version.outputs.VERSION }}.zip
+          nature-themes-latest.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
