@@ -33,11 +33,5 @@ jobs:
         echo "🔗 To update plugin index, edit kafkalens-plugin-index/plugins.json"
         echo "📝 Set version: ${{ steps.version.outputs.VERSION }}"
         echo "⏰ Set updated: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-        
-    - name: Upload release asset
-      if: github.event_name == 'release'
-      uses: softprops/action-gh-release@v1
-      with:
-        files: ./nature-themes-${{ steps.version.outputs.VERSION }}.zip
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        echo ""
+        echo "📋 For releases, manually download ZIP from workflow artifacts and upload to release"
