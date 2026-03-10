@@ -41,7 +41,7 @@ jobs:
         git config --local user.name "GitHub Action"
         git add plugins.json
         git commit -m "Update nature-themes to ${{ steps.version.outputs.VERSION }}"
-        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/fatichar/kafkalens-plugin-index.git main
+        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/fatichar/kafkalens-plugin-index.git master
         
     - name: Create release zip
       run: |
