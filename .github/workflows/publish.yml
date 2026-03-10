@@ -35,6 +35,7 @@ jobs:
         echo "⏰ Set updated: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
         
     - name: Upload release asset
+      if: github.event_name == 'release'
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
