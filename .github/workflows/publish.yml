@@ -28,11 +28,39 @@ jobs:
       
     - name: Create release zips
       run: |
-        # Create versioned zip for artifacts
-        zip -r nature-themes-${{ steps.version.outputs.VERSION }}.zip . -x ".git/*" "README.md" "install.sh" "install.bat"
-        
-        # Create consistent latest zip for releases
-        zip -r nature-themes-latest.zip . -x ".git/*" "README.md" "install.sh" "install.bat"
+        python3 - <<'PY'
+        import os
+        import zipfile
+
+        archives = [
+            "nature-themes-${{ steps.version.outputs.VERSION }}.zip",
+            "nature-themes-latest.zip",
+        ]
+        excluded_files = {"README.md", "install.sh", "install.bat"}
+
+        files = []
+        for root, directories, names in os.walk("."):
+            directories[:] = [directory for directory in directories if directory != ".git"]
+            for name in names:
+                if name in excluded_files:
+                    continue
+                source = os.path.join(root, name)
+                archive_name = os.path.relpath(source, ".").replace(os.sep, "/")
+                files.append((source, archive_name))
+
+        for archive in archives:
+            with zipfile.ZipFile(archive, "w", zipfile.ZIP_DEFLATED) as output:
+                for source, archive_name in files:
+                    output.write(source, archive_name)
+        PY
+
+        for archive in nature-themes-${{ steps.version.outputs.VERSION }}.zip nature-themes-latest.zip; do
+          if zipinfo -1 "$archive" | grep -Fq '\'; then
+            echo "Archive contains Windows-style path separators: $archive"
+            zipinfo -1 "$archive"
+            exit 1
+          fi
+        done
         
         echo "📦 Created ZIPs:"
         echo "   - nature-themes-${{ steps.version.outputs.VERSION }}.zip (versioned)"
